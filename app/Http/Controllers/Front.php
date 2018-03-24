@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Redirect;
+use Cart;
 use App\Brand;
 use App\Category;
 use App\Product;
@@ -60,7 +63,44 @@ class Front extends Controller
     }
 
     public function cart() {
-        return view('cart', array('title' => 'Welcome','description' => '','page' => 'home'));
+        //update/ add new item to cart
+        if (Request::isMethod('post')) {
+            $product_id = Request::get('product_id');
+            $product = Product::find($product_id);
+            Cart::add(array('id' => $product_id, 'name' => $product->name, 'qty' => 1, 'price' => $product->price));
+        }
+    
+        //increment the quantity
+        if (Request::get('product_id') && (Request::get('increment')) == 1) {
+        
+            $item = Cart::search(function ($cartItem, $rowId) {
+                return $cartItem->id === Request::get('product_id');
+            })->first();
+          
+            Cart::update($item->rowId, $item->qty + 1);
+        }
+    
+        //decrease the quantity
+        if (Request::get('product_id') && (Request::get('decrease')) == 1) {
+            $item = Cart::search(function ($cartItem, $rowId) {
+                return $cartItem->id === Request::get('product_id');
+            })->first();
+    
+            Cart::update($item->rowId, $item->qty - 1);
+        }
+        if (Request::get('product_id') && (Request::get('delete')) == 1) {
+            $item = Cart::search(function ($cartItem, $rowId) {
+                return $cartItem->id === Request::get('product_id');
+            })->first();
+            Cart::remove($item->rowId);
+        }
+        //$rowId = Cart::search(array('id' => Request::get('product_id')));
+        // Cart::remove($rowId[0]);
+        // Cart::destroy();
+    
+        $cart = Cart::content();
+    
+        return view('cart', array('cart' => $cart, 'title' => 'Welcome', 'description' => '', 'page' => 'home'));
     }
 
     public function checkout() {

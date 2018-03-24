@@ -10,6 +10,7 @@ Route::get('/contact-us','Front@contact_us');
 Route::get('/login','Front@login');
 Route::get('/logout','Front@logout');
 Route::get('/cart','Front@cart');
+Route::post('/cart','Front@cart');
 Route::get('/checkout','Front@checkout');
 Route::get('/search/{query}','Front@search');
 
