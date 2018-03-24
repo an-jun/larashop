@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 use Cart;
 use App\Brand;
 use App\Category;
 use App\Product;
+use App\User;
 class Front extends Controller
 {
     var $brands;
@@ -59,7 +61,8 @@ class Front extends Controller
     }
 
     public function logout() {
-        return view('login', array('title' => 'Welcome','description' => '','page' => 'home'));
+        Auth::logout();
+        return Redirect::away('login');
     }
 
     public function cart() {
@@ -94,9 +97,6 @@ class Front extends Controller
             })->first();
             Cart::remove($item->rowId);
         }
-        //$rowId = Cart::search(array('id' => Request::get('product_id')));
-        // Cart::remove($rowId[0]);
-        // Cart::destroy();
     
         $cart = Cart::content();
     
@@ -104,10 +104,29 @@ class Front extends Controller
     }
 
     public function checkout() {
+        
         return view('checkout', array('title' => 'Welcome','description' => '','page' => 'home'));
     }
 
     public function search($query) {
         return view('products', array('title' => 'Welcome','description' => '','page' => 'products'));
+    }
+    public function register() {
+        if (Request::isMethod('post')) {
+            User::create([
+                        'name' => Request::get('name'),
+                        'email' => Request::get('email'),
+                        'password' => bcrypt(Request::get('password')),
+            ]);
+        } 
+        
+        return Redirect::away('login');
+    }
+    public function authenticate() {
+        if (Auth::attempt(['email' => Request::get('email'), 'password' => Request::get('password')])) {
+            return redirect()->intended('checkout');
+        } else {
+            return view('login', array('title' => 'Welcome', 'description' => '', 'page' => 'home'));
+        }
     }
 }

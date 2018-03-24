@@ -11,8 +11,17 @@ Route::get('/login','Front@login');
 Route::get('/logout','Front@logout');
 Route::get('/cart','Front@cart');
 Route::post('/cart','Front@cart');
-Route::get('/checkout','Front@checkout');
+// Route::get('/checkout', [
+//     'middleware' => 'auth',
+//     'uses' => 'Front@checkout'
+// ]);
+Route::get('checkout','Front@checkout');
 Route::get('/search/{query}','Front@search');
+
+Route::get('auth/login', 'Front@login');
+Route::post('auth/login', 'Front@authenticate');
+Route::get('auth/logout', 'Front@logout');
+Route::post('/register', 'Front@register');
 
 Route::get('blade', function () {
     $drinks = array('Vodka','Gin','Brandy');
